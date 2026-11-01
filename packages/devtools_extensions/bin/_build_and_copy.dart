@@ -210,9 +210,9 @@ class BuildExtensionCommand extends Command {
         }
       }
 
-      if (!Directory(
-        destinationBuildPath,
-      ).listSync().whereType<File>().any((file) => file.path.endsWith('.wasm'))) {
+      if (!Directory(destinationBuildPath).listSync().whereType<File>().any(
+        (file) => file.path.endsWith('.wasm'),
+      )) {
         // No wasm application artifact exists in this output, so no
         // configuration can select the wasm renderer and its engine files
         // are unreachable. The local `canvaskit/`, `chromium/` and
