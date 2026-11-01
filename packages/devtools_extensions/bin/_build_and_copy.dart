@@ -194,14 +194,6 @@ class BuildExtensionCommand extends Command {
 
     var prunedBytes = 0;
 
-    // Debug symbols are never fetched at runtime in any build mode.
-    for (final entity in canvaskitDir.listSync(recursive: true)) {
-      if (entity is File && entity.path.endsWith('.js.symbols')) {
-        prunedBytes += entity.lengthSync();
-        entity.deleteSync();
-      }
-    }
-
     if (pruneCdnCanvasKit) {
       // Opt-in aggressive prune: the caller asserts every engine resource
       // is loaded remotely at runtime.
@@ -209,20 +201,30 @@ class BuildExtensionCommand extends Command {
         if (entity is File) prunedBytes += entity.lengthSync();
       }
       canvaskitDir.deleteSync(recursive: true);
-    } else if (!Directory(
-      destinationBuildPath,
-    ).listSync().whereType<File>().any((file) => file.path.endsWith('.wasm'))) {
-      // No wasm application artifact exists in this output, so no
-      // configuration can select the wasm renderer and its engine files
-      // are unreachable. The local `canvaskit/`, `chromium/` and
-      // `webparagraph/` variants are kept because the loader selects
-      // between them at runtime based on browser support.
-      for (final entity in canvaskitDir.listSync()) {
-        if (entity is! File) continue;
-        final name = path.basename(entity.path);
-        if (name.startsWith('skwasm') || name.startsWith('wimp')) {
+    } else {
+      // Debug symbols are never fetched at runtime in any build mode.
+      for (final entity in canvaskitDir.listSync(recursive: true)) {
+        if (entity is File && entity.path.endsWith('.js.symbols')) {
           prunedBytes += entity.lengthSync();
           entity.deleteSync();
+        }
+      }
+
+      if (!Directory(
+        destinationBuildPath,
+      ).listSync().whereType<File>().any((file) => file.path.endsWith('.wasm'))) {
+        // No wasm application artifact exists in this output, so no
+        // configuration can select the wasm renderer and its engine files
+        // are unreachable. The local `canvaskit/`, `chromium/` and
+        // `webparagraph/` variants are kept because the loader selects
+        // between them at runtime based on browser support.
+        for (final entity in canvaskitDir.listSync()) {
+          if (entity is! File) continue;
+          final name = path.basename(entity.path);
+          if (name.startsWith('skwasm') || name.startsWith('wimp')) {
+            prunedBytes += entity.lengthSync();
+            entity.deleteSync();
+          }
         }
       }
     }
