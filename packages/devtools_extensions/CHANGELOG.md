@@ -12,8 +12,8 @@ found in the LICENSE file or at https://developers.google.com/open-source/licens
 * Reduce extension build output size by pruning web engine resources that are
   never requested at runtime. `.js.symbols` debug files are always removed,
   and `skwasm`/`wimp` renderer files are removed when the build output
-  contains no `main.dart.wasm` application artifact (proving the wasm
-  renderer cannot be selected). A new opt-in `--prune-cdn-canvaskit` flag
+  contains no root-level `.wasm` application artifact (so the wasm
+  renderer is not selected). A new opt-in `--prune-cdn-canvaskit` flag
   additionally removes the entire local `canvaskit/` directory (~36 MB) for
   builds that are known to load all engine resources from the CDN at
   runtime; it cannot be combined with `--no-web-resources-cdn`.
